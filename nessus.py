@@ -19,6 +19,11 @@ f.close()
 wb = openpyxl.load_workbook("ips.xlsx")
 sheet = wb.get_active_sheet()
 
+current_ip = 1;
+while sheet.cell(row=current_ip,column=1).value is not None:
+	current_ip += 1
+print("Processing "+pathname)
+print(current_ip)
 vulnerabilities = {}
 single_params = ["agent", "cvss3_base_score", "cvss3_temporal_score", "cvss3_temporal_vector", "cvss3_vector",
                  "cvss_base_score", "cvss_temporal_score", "cvss_temporal_vector", "cvss_vector", "description",
@@ -70,13 +75,16 @@ for block in root:
                     for param in host_properties_dict:
                         vulnerabilities[vulner_id][param] = host_properties_dict[param]
 keys = vulnerabilities.keys()
-temp_pluginId = 0;
 for key in keys:
 	name, port, protocol, pluginID =key.split('|')
-	sheet.cell(row=(temp_pluginId+1),column=1).value = pluginID
-	sheet.cell(row=(temp_pluginId+1),column=2).value = name
-	sheet.cell(row=(temp_pluginId+1),column=3).value = port
-	sheet.cell(row=(temp_pluginId+1),column=4).value = protocol
-	sheet.cell(row=(temp_pluginId+1),column=5).value = name+" "+"("+protocol+"/"+port+")"
-	temp_pluginId += 1;
+	sheet.cell(row=(current_ip),column=1).value = int(pluginID)
+	sheet.cell(row=(current_ip),column=2).value = name
+	sheet.cell(row=(current_ip),column=3).value = int(port)
+	sheet.cell(row=(current_ip),column=4).value = protocol
+	sheet.cell(row=(current_ip),column=5).value = name+" "+"("+protocol+"/"+port+")"
+	sheet.cell(row=(current_ip),column=6).value = str(vulnerabilities[key]["svc_name"])
+	if "plugin_output" in vulnerabilities[key]:
+		sheet.cell(row=(current_ip),column=7).value = str(vulnerabilities[key]["plugin_output"])
+	sheet.cell(row=(current_ip),column=8).value = str(vulnerabilities[key])
+	current_ip += 1;
 wb.save("ips.xlsx")	
