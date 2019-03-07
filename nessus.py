@@ -76,7 +76,7 @@ for block in root:
                         vulnerabilities[vulner_id][param] = host_properties_dict[param]
 keys = vulnerabilities.keys()
 ssl_cipher_plugin_ids = ['26928','65821']
-ssl_cipher_finder = re.compile('''(\w{3,4}\-\w{3,4}(\-\w{3,4})*?)\s*Kx=.*\s*Au=.*\s*Enc=.*\s*Mac=.*''',re.MULTILINE)
+ssl_cipher_finder = re.compile('''(\w{3,4}\-\w{3,4}(\-\w{3,4})*?)\s*Kx=.*\s*Au=.*\s*Enc=.*\s*Mac=''',re.MULTILINE)
 
 for key in keys:
 	name, port, protocol, pluginID =key.split('|')
@@ -93,8 +93,8 @@ for key in keys:
 			# code to extract ciphers
 			#(.*)\s*Kx=.*\s*Au=.*\s*Enc=.*\s*Mac=.*
 			#print("In if block"+pluginID)
-			ciphers = ssl_cipher_finder.search(str(vulnerabilities[key]["plugin_output"]))
-			print("Ciphers : "+str(ciphers.groups()))
+			ciphers = ssl_cipher_finder.findall(str(vulnerabilities[key]["plugin_output"]))
+			print("Ciphers : "+str(ciphers))
 			all_cipher = ""
 			for cipher_arr in ciphers:
 				for cipher in cipher_arr:
