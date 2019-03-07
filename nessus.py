@@ -75,6 +75,9 @@ for block in root:
                     for param in host_properties_dict:
                         vulnerabilities[vulner_id][param] = host_properties_dict[param]
 keys = vulnerabilities.keys()
+ssl_cipher_plugin_ids = ['26928','65821']
+ssl_cipher_finder = re.compile('''(\w{3,4}\-\w{3,4}(\-\w{3,4})*?)\s*Kx=.*\s*Au=.*\s*Enc=.*\s*Mac=.*''',re.MULTILINE)
+
 for key in keys:
 	name, port, protocol, pluginID =key.split('|')
 	sheet.cell(row=(current_ip),column=1).value = int(pluginID)
@@ -85,6 +88,19 @@ for key in keys:
 	sheet.cell(row=(current_ip),column=6).value = str(vulnerabilities[key]["svc_name"])
 	if "plugin_output" in vulnerabilities[key]:
 		sheet.cell(row=(current_ip),column=7).value = str(vulnerabilities[key]["plugin_output"])
-	sheet.cell(row=(current_ip),column=8).value = str(vulnerabilities[key])
+		#print("PluginID: "+pluginID)
+		if pluginID in ssl_cipher_plugin_ids:
+			# code to extract ciphers
+			#(.*)\s*Kx=.*\s*Au=.*\s*Enc=.*\s*Mac=.*
+			#print("In if block"+pluginID)
+			ciphers = ssl_cipher_finder.search(str(vulnerabilities[key]["plugin_output"]))
+			print("Ciphers : "+str(ciphers.groups()))
+			all_cipher = ""
+			for cipher_arr in ciphers:
+				for cipher in cipher_arr:
+					if cipher is not None and not cipher.startswith('-'):
+						all_cipher += cipher+"\n"
+			sheet.cell(row=(current_ip),column=9).value = all_cipher
+	#sheet.cell(row=(current_ip),column=8).value = str(vulnerabilities[key])
 	current_ip += 1;
 wb.save("ips.xlsx")	
