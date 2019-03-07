@@ -19,7 +19,7 @@ f.close()
 wb = openpyxl.load_workbook("ips.xlsx")
 sheet = wb.get_active_sheet()
 
-current_ip = 1;
+current_ip = 2;
 while sheet.cell(row=current_ip,column=1).value is not None:
 	current_ip += 1
 print("Processing "+pathname)
@@ -76,7 +76,7 @@ for block in root:
                         vulnerabilities[vulner_id][param] = host_properties_dict[param]
 keys = vulnerabilities.keys()
 ssl_cipher_plugin_ids = ['26928','65821']
-ssl_cipher_finder = re.compile('''(\w{3,4}\-\w{3,4}(\-\w{3,4})*?)\s*Kx=.*\s*Au=.*\s*Enc=.*\s*Mac=''',re.MULTILINE)
+ssl_cipher_finder = re.compile(r'(\w{3,4}\-\w{3,4}(\-\w{3,4})*?(\(.+\))?)\s*Kx=.*\s*Au=.*\s*Enc=.*\s*Mac=')
 
 for key in keys:
 	name, port, protocol, pluginID =key.split('|')
@@ -87,20 +87,15 @@ for key in keys:
 	sheet.cell(row=(current_ip),column=5).value = name+" "+"("+protocol+"/"+port+")"
 	sheet.cell(row=(current_ip),column=6).value = str(vulnerabilities[key]["svc_name"])
 	if "plugin_output" in vulnerabilities[key]:
-		sheet.cell(row=(current_ip),column=7).value = str(vulnerabilities[key]["plugin_output"])
-		#print("PluginID: "+pluginID)
+		#sheet.cell(row=(current_ip),column=8).value = vulnerabilities[key]["plugin_output"][0]
 		if pluginID in ssl_cipher_plugin_ids:
-			# code to extract ciphers
-			#(.*)\s*Kx=.*\s*Au=.*\s*Enc=.*\s*Mac=.*
-			#print("In if block"+pluginID)
-			ciphers = ssl_cipher_finder.findall(str(vulnerabilities[key]["plugin_output"]))
-			print("Ciphers : "+str(ciphers))
+			#print("\n\nIP : "+name)
+			ciphers = ssl_cipher_finder.findall(vulnerabilities[key]["plugin_output"][0])
 			all_cipher = ""
 			for cipher_arr in ciphers:
-				for cipher in cipher_arr:
-					if cipher is not None and not cipher.startswith('-'):
-						all_cipher += cipher+"\n"
-			sheet.cell(row=(current_ip),column=9).value = all_cipher
-	#sheet.cell(row=(current_ip),column=8).value = str(vulnerabilities[key])
+				cipher = cipher_arr[0]
+				if cipher is not None:
+					all_cipher += cipher+"\n"
+			sheet.cell(row=(current_ip),column=7).value = all_cipher
 	current_ip += 1;
 wb.save("ips.xlsx")	
