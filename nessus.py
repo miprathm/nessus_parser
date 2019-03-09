@@ -79,15 +79,21 @@ ssl_cipher_plugin_ids = ['26928','65821']
 ssl_cipher_finder = re.compile(r'(\w{3,4}\-\w{3,4}(\-\w{3,4})*?(\(.+\))?)\s*Kx=.*\s*Au=.*\s*Enc=.*\s*Mac=')
 
 for key in keys:
+	column_index = 1
 	name, port, protocol, pluginID =key.split('|')
-	sheet.cell(row=(current_ip),column=1).value = int(pluginID)
-	sheet.cell(row=(current_ip),column=2).value = name
-	sheet.cell(row=(current_ip),column=3).value = int(port)
-	sheet.cell(row=(current_ip),column=4).value = protocol
-	sheet.cell(row=(current_ip),column=5).value = name+" "+"("+protocol+"/"+port+")"
-	sheet.cell(row=(current_ip),column=6).value = str(vulnerabilities[key]["svc_name"])
+	sheet.cell(row=(current_ip),column=(column_index+1)).value = int(pluginID)
+	sheet.cell(row=(current_ip),column=(column_index+2)).value = name
+	sheet.cell(row=(current_ip),column=(column_index+3)).value = int(port)
+	sheet.cell(row=(current_ip),column=(column_index+4)).value = protocol
+	sheet.cell(row=(current_ip),column=(column_index+5)).value = name+" "+"("+protocol+"/"+port+")"
+	sheet.cell(row=(current_ip),column=(column_index+6)).value = str(vulnerabilities[key]["svc_name"])
+	sheet.cell(row=(current_ip),column=(column_index+7)).value = str(vulnerabilities[key]["pluginName"])
+	sheet.cell(row=(current_ip),column=(column_index+8)).value = str(vulnerabilities[key]["synopsis"])
+	sheet.cell(row=(current_ip),column=(column_index+9)).value = str(vulnerabilities[key]["description"])
+	sheet.cell(row=(current_ip),column=(column_index+10)).value = str(vulnerabilities[key]["riskFactor"])
 	if "plugin_output" in vulnerabilities[key]:
-		#sheet.cell(row=(current_ip),column=8).value = vulnerabilities[key]["plugin_output"][0]
+		#sheet.cell(row=(current_ip),column=(column_index+12)).value = str(vulnerabilities[key])
+		#["plugin_output"][0]
 		if pluginID in ssl_cipher_plugin_ids:
 			#print("\n\nIP : "+name)
 			ciphers = ssl_cipher_finder.findall(vulnerabilities[key]["plugin_output"][0])
@@ -96,6 +102,6 @@ for key in keys:
 				cipher = cipher_arr[0]
 				if cipher is not None:
 					all_cipher += cipher+"\n"
-			sheet.cell(row=(current_ip),column=7).value = all_cipher
+			sheet.cell(row=(current_ip),column=(column_index+11)).value = all_cipher
 	current_ip += 1;
 wb.save("ips.xlsx")	
