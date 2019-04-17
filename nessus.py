@@ -20,7 +20,7 @@ wb = openpyxl.load_workbook("ips.xlsx")
 sheet = wb.get_active_sheet()
 
 current_ip = 2;
-while sheet.cell(row=current_ip,column=1).value is not None:
+while sheet.cell(row=current_ip,column=2).value is not None:
 	current_ip += 1
 print("Processing "+pathname)
 print(current_ip)
@@ -75,8 +75,8 @@ for block in root:
                     for param in host_properties_dict:
                         vulnerabilities[vulner_id][param] = host_properties_dict[param]
 keys = vulnerabilities.keys()
-ssl_cipher_plugin_ids = ['26928','65821']
-ssl_cipher_finder = re.compile(r'(\w{3,4}\-\w{3,4}(\-\w{3,4})*?(\(.+\))?)\s*Kx=.*\s*Au=.*\s*Enc=.*\s*Mac=')
+ssl_cipher_plugin_ids = ['26928','65821','42873']
+ssl_cipher_finder = re.compile(r'(\w{3,8}\-\w{3,8}(\-\w{3,8})*?(\(.+\))?)\s*Kx=.*\s*Au=.*\s*Enc=.*\s*Mac=')
 
 for key in keys:
 	column_index = 1
@@ -91,6 +91,7 @@ for key in keys:
 	sheet.cell(row=(current_ip),column=(column_index+8)).value = str(vulnerabilities[key]["synopsis"])
 	sheet.cell(row=(current_ip),column=(column_index+9)).value = str(vulnerabilities[key]["description"])
 	sheet.cell(row=(current_ip),column=(column_index+10)).value = str(vulnerabilities[key]["riskFactor"])
+	sheet.cell(row=(current_ip),column=(column_index+11)).value = str(vulnerabilities[key]["solution"])
 	if "plugin_output" in vulnerabilities[key]:
 		#sheet.cell(row=(current_ip),column=(column_index+12)).value = str(vulnerabilities[key])
 		#["plugin_output"][0]
@@ -102,6 +103,6 @@ for key in keys:
 				cipher = cipher_arr[0]
 				if cipher is not None:
 					all_cipher += cipher+"\n"
-			sheet.cell(row=(current_ip),column=(column_index+11)).value = all_cipher
+			sheet.cell(row=(current_ip),column=(column_index+12)).value = all_cipher
 	current_ip += 1;
 wb.save("ips.xlsx")	
